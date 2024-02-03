@@ -1,5 +1,4 @@
 import numpy as np
-import random
 from scipy.stats import norm
 
 # 先只考虑100x100x100的范围
@@ -38,17 +37,15 @@ g = 9.8
 # 阻力系数
 k = 1
 
-#约定不失去动力时向上的速度
-VZ=-10
+# 约定不失去动力时向上的速度
+VZ = -10
 
 # 失联潜艇在某秒计算开始时的位置、速度、受力
-pos = np.array([0, 0, np.random.randint(0, height[0][0])])
+pos = np.array([50, 50, np.random.randint(0, height[0][0])])
 
 v_lost = np.array([10, 10, 10])  # 后续修改“初值”为失联时报告的速度
 
 F = np.array([0, 0, 0])
-
-v_z = np.array([0, 0, 10]) # 若仍有动力，默认向海平面以v_z匀速行驶 
 
 # 雷达探测半径
 R = 20
@@ -57,9 +54,14 @@ R = 20
 P = np.zeros(shape=shape)
 P[tuple(pos)] = 1
 
+# 是否有动力
+propulsion = True
+
+
 # 确定t时间失去动力概率的函数
 def p_disable(t):
     return 0.5
+
 
 # 判断是否结束
 def finish():
@@ -107,8 +109,8 @@ def update_position(pos, v_lost):
 
 # 判断是否触底来更新失联潜艇速度
 def update_speed(pos, v_lost, height):
-    if pos[2] >= height[pos[0], pos[1]]:  # 触底：速度归零并调整z方向位置
-        pos[2] = height[pos[0], pos[1]]
+    if pos[2] >= height[int(pos[0]), int(pos[1])]:  # 触底：速度归零并调整z方向位置
+        pos[2] = height[int(pos[0]), int(pos[1])]
         return np.array([0, 0, 0])
     else:  # 未触底：正常更新
         v_lost_new_x = v_lost[0]+F[0]/mass*delta_t
@@ -120,17 +122,21 @@ def update_speed(pos, v_lost, height):
 # 在更新失联潜艇位置后更新失联潜艇受力情况
 def update_force(pos, v_lost, k, mass, g, density, density_water, current_v, height):
     # 更新x、y方向受力，使用所在位置处的相对速度
-    F_new_x = -k*(v_lost[0]-current_v[pos[0], pos[1], pos[2], 0])
-    F_new_y = -k*(v_lost[1]-current_v[pos[0], pos[1], pos[2], 1])
+    F_new_x = -k*(v_lost[0]-current_v[int(pos[0]),
+                  int(pos[1]), int(pos[2]), 0])
+    F_new_y = -k*(v_lost[1]-current_v[int(pos[0]),
+                  int(pos[1]), int(pos[2]), 1])
 
     # 更新z方向受力，除阻力一项外还有浮力与重力的差
     # 与height统一，定义z方向向下为正
-    z_force_f = -k*(v_lost[2]-current_v[pos[0], pos[1], pos[2], 2])
+    z_force_f = -k*(v_lost[2]-current_v[int(pos[0]),
+                    int(pos[1]), int(pos[2]), 2])
     z_force_G = mass*g
-    z_force_Float = density_water[pos[0], pos[1], pos[2]]*g*(mass/density)
+    z_force_Float = density_water[int(pos[0]), int(
+        pos[1]), int(pos[2])]*g*(mass/density)
     F_new_z = z_force_f+z_force_G-z_force_Float
 
     # 如果已经触底且z方向合力向下，置为0
-    if pos[2] == height[pos[0], pos[1]] and F_new_z > 0:
+    if pos[2] == height[int(pos[0]), int(pos[1])] and F_new_z > 0:
         F_new_z = 0
     return np.array([F_new_x, F_new_y, F_new_z])

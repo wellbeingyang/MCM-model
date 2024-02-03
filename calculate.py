@@ -1,33 +1,32 @@
 import numpy as np
 import random
 from tools import *
-
-
-# 是否有动力
-propulsion = True
+import tools
 
 
 def check_position(pos):
     for i in range(3):
         if pos[i] < 0:
             pos[i] = 0
-        elif pos[i] > shape[i]:
-            pos[i] = shape[i]
+        elif pos[i] > tools.shape[i]:
+            pos[i] = tools.shape[i]
     return pos
 
 
 # delta_t秒后的情况更新一步
 def step_forward(t):
-    if propulsion and random.random() < f(t):
-        propulsion = False
+    if tools.propulsion and random.random() < p_disable(t):
+        tools.propulsion = False
 
-    if propulsion:
-        v_lost = VZ
-        pos = update_position(pos, v_lost)
-        pos = check_position(pos)
+    if tools.propulsion:
+        tools.v_lost = [0, 0, tools.VZ]
+        tools.pos = update_position(tools.pos, tools.v_lost)
+        tools.pos = check_position(tools.pos)
     else:
-        v_lost = np.random.normal(loc=v_lost, scale=[sigma]*3, size=3)
-        pos = update_position(pos, v_lost)
-        F = update_force(pos, v_lost, k, mass, g, density,
-                         density_water, current_v, height)
-        v_lost = update_speed()
+        tools.v_lost = np.random.normal(
+            loc=tools.v_lost, scale=[tools.sigma]*3, size=3)
+        tools.pos = update_position(tools.pos, tools.v_lost)
+        tools.F = update_force(tools.pos, tools.v_lost, tools.k, tools.mass, tools.g, tools.density,
+                                   tools.density_water, tools.current_v, tools.height)
+        tools.v_lost = update_speed(
+            tools.pos, tools.v_lost, tools.height)

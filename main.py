@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import time
 import os
 from tools import *
+import tools
 import predict
 import calculate
 
@@ -25,14 +26,16 @@ def save_heat_map():
     p_xy = np.sum(P, axis=2)
     p_xy /= p_xy.sum()
 
+    plt.clf()
+
     # 绘制热力图
     plt.imshow(p_xy, cmap='viridis', interpolation='nearest', origin='lower')
 
     # 添加颜色条
     plt.colorbar()
 
-    plt.scatter(pos[0], pos[1], color="red", marker="o", label="Real position")
-    plt.scatter(pos_s[0], pos_s[1], color="orange",
+    plt.scatter(tools.pos[0], tools.pos[1], color="red", marker="o", label="Real position")
+    plt.scatter(tools.pos_s[0], tools.pos_s[1], color="orange",
                 marker="o", label="Searching submarine")
 
     # 添加标题和轴标签
@@ -45,19 +48,18 @@ def save_heat_map():
     plt.savefig(f"results/{dir}/img/{t}.png")
 
 
-while (not finish()):
+while (t < 5):
     print(f"Current search time: {t} seconds.")
     f.write(f"## {t}s\n")
     f.write("Current position of the lost submersible:\n")
-    f.write(f"x: {pos[0]} y: {pos[1]} z: {pos[2]}\n")
+    f.write(f"x: {tools.pos[0]} y: {tools.pos[1]} z: {tools.pos[2]}\n")
     f.write(f"Predicted probability distribution:\n")
     f.write(f'![{t}.png](img/{t}.png "{t}.png")\n')
     f.write("Current position of the searching submarine:\n")
-    f.write(f"x: {pos_s[0]} y: {pos_s[1]} z: {pos_s[2]}\n\n")
+    f.write(f"x: {tools.pos_s[0]} y: {tools.pos_s[1]} z: {tools.pos_s[2]}\n\n")
     save_heat_map()
     # predict.step_forward()
     calculate.step_forward(t)
     t += 1
-    break
 
 f.close()
