@@ -6,7 +6,7 @@ from scipy.stats import norm
 shape = (100, 100, 100)
 
 # 地底高度，用于模拟海底地形
-height = np.random.randint(low=0, high=30, size=shape)
+height = np.random.randint(low=70, high=100, size=(shape[0], shape[1]))
 
 # 每个区块内的洋流速度
 current_v = np.random.randint(low=0, high=2, size=shape+(3,))
@@ -15,24 +15,28 @@ current_v = np.random.randint(low=0, high=2, size=shape+(3,))
 delta_t = 1
 
 # 搜救潜艇移动速度
-v = 10
+v = np.array([4, 4, 4])
 
-# 失联潜艇初始位置横坐标
-x0 = 0
+# 搜救潜艇当前坐标
+r_s = np.array([0, 0, 0])
 
-# 失联潜艇初始位置纵坐标
-y0 = 0
+# 失联潜艇初始位置坐标
+r0 = np.array([0, 0, np.random.randint(0, height[0][0])])
 
-# 失联潜艇的初始位置竖坐标
-z0 = random.randint(0, height[0][0])
+# 失联潜艇当前坐标
+r = r0
 
 # 雷达探测半径
 R = 20
 
 # 概率分布矩阵
-P = np.zeros(*shape)
-P[x0][y0][z0] = 1
+P = np.zeros(shape=shape)
+P[tuple(r0)] = 1
 
+
+# 判断是否结束
+def finish():
+    return False
 
 # 创建指示函数 I_R(x, y, z)
 def indicator_function(x, y, z):
