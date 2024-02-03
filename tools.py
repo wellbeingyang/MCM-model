@@ -47,6 +47,9 @@ v_lost = np.array([10, 10, 10])  # 后续修改“初值”为失联时报告的
 
 F = np.array([0, 0, 0])
 
+# 失联潜艇在某秒开始时加权前的猜测速度
+v_before=np.array([10, 10, 10])
+
 # 雷达探测半径
 R = 20
 
@@ -116,6 +119,15 @@ def update_speed(pos, v_lost, height):
         v_lost_new_x = v_lost[0]+F[0]/mass*delta_t
         v_lost_new_y = v_lost[1]+F[1]/mass*delta_t
         v_lost_new_z = v_lost[2]+F[2]/mass*delta_t
+        return np.array([v_lost_new_x, v_lost_new_y, v_lost_new_z])
+def update_speed_prediction(pos, v_lost, height, force):
+    if pos[2] >= height[int(pos[0]), int(pos[1])]:  # 触底：速度归零并调整z方向位置
+        pos[2] = height[int(pos[0]), int(pos[1])]
+        return np.array([0, 0, 0])
+    else:  # 未触底：正常更新
+        v_lost_new_x = v_lost[0]+force[0]/mass*delta_t
+        v_lost_new_y = v_lost[1]+force[1]/mass*delta_t
+        v_lost_new_z = v_lost[2]+force[2]/mass*delta_t
         return np.array([v_lost_new_x, v_lost_new_y, v_lost_new_z])
 
 
