@@ -152,3 +152,11 @@ def update_force(pos, v_lost, k, mass, g, density, density_water, current_v, hei
     if pos[2] == height[int(pos[0]), int(pos[1])] and F_new_z > 0:
         F_new_z = 0
     return np.array([F_new_x, F_new_y, F_new_z])
+
+def check_position(pos):
+    for i in range(3):
+        if pos[i] < 0:
+            pos[i] = 0
+        elif pos[i] >shape[i]:
+            pos[i] = shape[i]
+    return pos

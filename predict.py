@@ -37,5 +37,6 @@ def step_forward(t):
     position_new[0]=int(position_new[0])
     position_new[1]=int(position_new[1])
     position_new[2]=int(position_new[2])
+    position_new=tools.check_position(position_new)
     v_new=tools.update_speed_prediction(position_new,v_a,tools.height,force)
     tools.v_before=v_new
