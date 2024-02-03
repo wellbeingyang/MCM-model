@@ -11,6 +11,9 @@ height = np.random.randint(low=70, high=100, size=(shape[0], shape[1]))
 # 每个区块内的洋流速度
 current_v = np.random.randint(low=0, high=2, size=shape+(3,))
 
+#每个区块内的海水密度
+density_water=np.random.uniform(low=0.5,high=1,size=shape)
+
 # 每隔delta_t的时间更新一次数据
 delta_t = 1
 
@@ -87,3 +90,31 @@ def convolve_probability_density(P, v, delta_t):
         P) * np.fft.fftn(vx) * np.fft.fftn(vy) * np.fft.fftn(vz)).real
 
     return P_convolved
+
+#更新失联潜艇位置
+def update_position(pos,v_lost):
+    pos_new_x=pos[0]+v_lost[0]*delta_t
+    pos_new_y=pos[1]+v_lost[1]*delta_t
+    pos_new_z=pos[2]+v_lost[2]*delta_t
+    return np.array([pos_new_x,pos_new_y,pos_new_z])
+
+#(用原来的受力情况)更新失联潜艇速度
+def update_speed(v_lost,F,mass,delta_t):
+    v_lost_new_x=v_lost[0]+F[0]/mass*delta_t
+    v_lost_new_y=v_lost[1]+F[1]/mass*delta_t
+    v_lost_new_z=v_lost[2]+F[2]/mass*delta_t
+    return np.array([v_lost_new_x,v_lost_new_y,v_lost_new_z])
+
+#在更新失联潜艇位置后更新失联潜艇受力情况
+def update_force(pos,v_lost,k,mass,g,density,density_water,current_v):
+    #更新x、y方向受力，使用所在位置处的相对速度
+    F_new_x=-k*(v_lost[0]-current_v[pos[0],pos[1],pos[2],0])
+    F_new_y=-k*(v_lost[1]-current_v[pos[0],pos[1],pos[2],1])
+
+    #更新z方向受力，除阻力一项外还有浮力与重力的差
+    #与height统一，定义z方向向下为正
+    z_force_f=-k*(v_lost[2]-current_v[pos[0],pos[1],pos[2],2])
+    z_force_G=mass*g
+    z_force_Float=density_water[pos[0],pos[1],pos[2]]*g*(mass/density)
+    F_new_z=z_force_f+z_force_G-z_force_Float
+    return np.array([F_new_x,F_new_y,F_new_z])
