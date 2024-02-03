@@ -48,7 +48,7 @@ v_lost = np.array([10, 10, 10])  # 后续修改“初值”为失联时报告的
 F = np.array([0, 0, 0])
 
 # 失联潜艇在某秒开始时加权前的猜测速度
-v_before=np.array([10, 10, 10])
+v_before = np.array([10, 10, 10])
 
 # 雷达探测半径
 R = 20
@@ -63,7 +63,9 @@ propulsion = True
 
 # 确定t时间失去动力概率的函数
 def p_disable(t):
-    return 0.5
+    Lambda = 10
+    k = 2
+    return (1-np.exp(-(t/Lambda)**k))
 
 
 # 判断是否结束
@@ -120,6 +122,8 @@ def update_speed(pos, v_lost, height):
         v_lost_new_y = v_lost[1]+F[1]/mass*delta_t
         v_lost_new_z = v_lost[2]+F[2]/mass*delta_t
         return np.array([v_lost_new_x, v_lost_new_y, v_lost_new_z])
+
+
 def update_speed_prediction(pos, v_lost, height, force):
     if pos[2] >= height[int(pos[0]), int(pos[1])]:  # 触底：速度归零并调整z方向位置
         pos[2] = height[int(pos[0]), int(pos[1])]
