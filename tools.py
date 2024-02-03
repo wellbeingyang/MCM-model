@@ -17,8 +17,8 @@ delta_t = 1
 # 搜救潜艇移动速度
 v = np.array([4, 4, 4])
 
-# 失联潜艇的位置坐标
-r = np.array([0, 0, np.random.randint(0, height[0][0])])
+# 搜救潜艇的位置坐标
+pos_s = np.array([0, 0, 0])
 
 # 失联潜艇质量(用于从受力计算加速度)
 mass = 100
@@ -33,7 +33,7 @@ g = 9.8
 k = 1
 
 # 失联潜艇在某秒计算开始时的位置、速度、受力
-pos = r
+pos = np.array([0, 0, np.random.randint(0, height[0][0])])
 
 v_lost = np.array([10, 10, 10])  # 后续修改“初值”为失联时报告的速度
 
@@ -44,12 +44,12 @@ R = 20
 
 # 概率分布矩阵
 P = np.zeros(shape=shape)
-P[tuple(r)] = 1
+P[tuple(pos)] = 1
 
 
 # 判断是否结束
 def finish():
-    return ((pos-r)**2).sum() <= R**2
+    return ((pos-pos_s)**2).sum() <= R**2
 
 
 # 创建指示函数 I_R(x, y, z)
