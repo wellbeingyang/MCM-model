@@ -5,7 +5,7 @@ def step_forward(t):
     v_a=np.array([0,0,0])
     v_a[0]=tools.p_disable(t)*tools.v_before[0]
     v_a[1]=tools.p_disable(t)*tools.v_before[1]
-    v_a=tools.p_disable(t)*tools.v_before[2]+(1-tools.p_disable(t))*tools.VZ
+    v_a[2]=tools.p_disable(t)*tools.v_before[2]+(1-tools.p_disable(t))*tools.VZ
 
     #再进行位置、洋流速度、密度加权平均,并用这些数据求力
     p_a=np.array([0,0,0])
