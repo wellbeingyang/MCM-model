@@ -6,6 +6,9 @@ from tools import *
 import predict
 import calculate
 
+if not os.path.exists("results"):
+    os.mkdir("results")
+
 dir = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime(time.time()))
 
 filename = f"results/{dir}/results.md"
@@ -28,10 +31,15 @@ def save_heat_map():
     # 添加颜色条
     plt.colorbar()
 
+    plt.scatter(pos[0], pos[1], color="red", marker="o", label="Real position")
+    plt.scatter(pos_s[0], pos_s[1], color="orange",
+                marker="o", label="Searching submarine")
+
     # 添加标题和轴标签
     plt.title("Heatmap of Probability Distribution")
     plt.xlabel("X-axis")
     plt.ylabel("Y-axis")
+    plt.legend()
 
     # 显示图形
     plt.savefig(f"results/{dir}/img/{t}.png")
@@ -48,7 +56,7 @@ while (not finish()):
     f.write(f"x: {pos_s[0]} y: {pos_s[1]} z: {pos_s[2]}\n\n")
     save_heat_map()
     # predict.step_forward()
-    # calculate.step_forward()
+    calculate.step_forward(t)
     t += 1
     break
 
