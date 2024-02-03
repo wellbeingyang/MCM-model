@@ -49,6 +49,9 @@ R = 20
 P = np.zeros(shape=shape)
 P[tuple(pos)] = 1
 
+# 确定t时间失去动力概率的函数
+def p_disable(t):
+    return 0.5
 
 # 判断是否结束
 def finish():
