@@ -38,6 +38,9 @@ g = 9.8
 # 阻力系数
 k = 1
 
+#约定不失去动力时向上的速度
+VZ=-10
+
 # 失联潜艇在某秒计算开始时的位置、速度、受力
 pos = np.array([0, 0, np.random.randint(0, height[0][0])])
 
@@ -54,6 +57,9 @@ R = 20
 P = np.zeros(shape=shape)
 P[tuple(pos)] = 1
 
+# 确定t时间失去动力概率的函数
+def p_disable(t):
+    return 0.5
 
 # 判断是否结束
 def finish():
