@@ -4,13 +4,7 @@ from tools import *
 import tools
 
 
-def check_position(pos):
-    for i in range(3):
-        if pos[i] < 0:
-            pos[i] = 0
-        elif pos[i] > tools.shape[i]:
-            pos[i] = tools.shape[i]
-    return pos
+
 
 
 # delta_t秒后的情况更新一步
