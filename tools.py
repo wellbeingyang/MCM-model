@@ -98,15 +98,19 @@ def update_position(pos,v_lost):
     pos_new_z=pos[2]+v_lost[2]*delta_t
     return np.array([pos_new_x,pos_new_y,pos_new_z])
 
-#(用原来的受力情况)更新失联潜艇速度
-def update_speed(v_lost,F,mass,delta_t):
-    v_lost_new_x=v_lost[0]+F[0]/mass*delta_t
-    v_lost_new_y=v_lost[1]+F[1]/mass*delta_t
-    v_lost_new_z=v_lost[2]+F[2]/mass*delta_t
-    return np.array([v_lost_new_x,v_lost_new_y,v_lost_new_z])
+#判断是否触底来更新失联潜艇速度
+def update_speed(pos,v_lost,height):
+    if pos[2]>=height[pos[0],pos[1]]:#触底：速度归零并调整z方向位置
+        pos[2]=height[pos[0],pos[1]]
+        return np.array([0,0,0])
+    else:#未触底：正常更新
+        v_lost_new_x=v_lost[0]+F[0]/mass*delta_t
+        v_lost_new_y=v_lost[1]+F[1]/mass*delta_t
+        v_lost_new_z=v_lost[2]+F[2]/mass*delta_t
+        return np.array([v_lost_new_x,v_lost_new_y,v_lost_new_z])
 
 #在更新失联潜艇位置后更新失联潜艇受力情况
-def update_force(pos,v_lost,k,mass,g,density,density_water,current_v):
+def update_force(pos,v_lost,k,mass,g,density,density_water,current_v,height):
     #更新x、y方向受力，使用所在位置处的相对速度
     F_new_x=-k*(v_lost[0]-current_v[pos[0],pos[1],pos[2],0])
     F_new_y=-k*(v_lost[1]-current_v[pos[0],pos[1],pos[2],1])
@@ -117,4 +121,8 @@ def update_force(pos,v_lost,k,mass,g,density,density_water,current_v):
     z_force_G=mass*g
     z_force_Float=density_water[pos[0],pos[1],pos[2]]*g*(mass/density)
     F_new_z=z_force_f+z_force_G-z_force_Float
+
+    #如果已经触底且z方向合力向下，置为0
+    if pos[2]==height[pos[0],pos[1]] and F_new_z>0:
+        F_new_z=0
     return np.array([F_new_x,F_new_y,F_new_z])
