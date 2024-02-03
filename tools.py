@@ -17,45 +17,40 @@ delta_t = 1
 # 搜救潜艇移动速度
 v = np.array([4, 4, 4])
 
-# 搜救潜艇当前坐标
-r_s = np.array([0, 0, 0])
+# 失联潜艇的位置坐标
+r = np.array([0, 0, np.random.randint(0, height[0][0])])
 
-# 失联潜艇初始位置坐标
-r0 = np.array([0, 0, np.random.randint(0, height[0][0])])
+# 失联潜艇质量(用于从受力计算加速度)
+mass = 100
 
-# 失联潜艇当前坐标
-r = r0
+# 失联潜艇密度(用密度、质量、重力加速度及海水密度就可算出浮力)
+density = 0.8
 
-#失联潜艇质量(用于从受力计算加速度)
-mass=100
+# 重力加速度
+g = 9.8
 
-#失联潜艇密度(用密度、质量、重力加速度及海水密度就可算出浮力)
-density=0.8
+# 阻力系数
+k = 1
 
-#重力加速度
-g=9.8
+# 失联潜艇在某秒计算开始时的位置、速度、受力
+pos = r
 
-#阻力系数
-k=1
+v_lost = np.array([10, 10, 10])  # 后续修改“初值”为失联时报告的速度
 
-#失联潜艇在某秒计算开始时的位置、速度、受力
-pos=np.array([x0,y0,z0])
-
-v_lost=np.array([10,10,10])#后续修改“初值”为失联时报告的速度
-
-F=np.array([0,0,0])
+F = np.array([0, 0, 0])
 
 # 雷达探测半径
 R = 20
 
 # 概率分布矩阵
 P = np.zeros(shape=shape)
-P[tuple(r0)] = 1
+P[tuple(r)] = 1
 
 
 # 判断是否结束
 def finish():
-    return False
+    return ((pos-r)**2).sum() <= R**2
+
 
 # 创建指示函数 I_R(x, y, z)
 def indicator_function(x, y, z):
