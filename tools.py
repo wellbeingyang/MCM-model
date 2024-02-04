@@ -103,10 +103,16 @@ def indicator_func(p, p_b):
 
 # 根据查找范围更新概率分布
 def update_probability_distribution(P, p_b):
-    P_updated = P * np.array([[[(1 - indicator_func(np.array([x, y, z]), p_b)) for z in range(shape[2])]
-                             for y in range(shape[1])] for x in range(shape[0])])
-    P_updated /= np.sum(P_updated)
-    return P_updated
+    xyz_min = [int(min(p_b[i], pos_s[i]) - R) for i in range(3)]
+    xyz_max = [int(max(p_b[i], pos_s[i]) + R) for i in range(3)]
+    indicator = np.ones_like(P)
+    for x in range(xyz_min[0], xyz_max[0]):
+        for y in range(xyz_min[1], xyz_max[1]):
+            for z in range(xyz_min[2], xyz_max[2]):
+                if distance_point_to_segment(np.array([x, y, z]), p_b, pos_s) <= R:
+                    indicator[x, y, z] = 0
+    P *= indicator
+    return P
 
 
 # 求解概率密度函数的卷积
@@ -196,8 +202,8 @@ def update_force_prediction(pos, v_lost, k, mass, g, density, density_water, cur
 
 def check_position(pos):
     for i in range(3):
-        if pos[i] < 0:
+        if int(pos[i]) < 0:
             pos[i] = 0
-        elif pos[i] > shape[i]:
+        elif int(pos[i]) > shape[i]:
             pos[i] = shape[i]
     return pos

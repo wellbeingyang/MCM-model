@@ -23,7 +23,7 @@ t = 0
 
 
 def save_heat_map():
-    p_xy = np.sum(P, axis=2)
+    p_xy = np.sum(tools.P, axis=2)
     p_xy /= p_xy.sum()
 
     plt.clf()
