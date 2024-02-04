@@ -48,7 +48,7 @@ def save_heat_map():
     plt.savefig(f"results/{dir}/img/{t}.png")
 
 
-while (t < 5):
+while (not tools.finished):
     print(f"Current search time: {t} seconds.")
     f.write(f"## {t}s\n")
     f.write("Current position of the lost submersible:\n")
@@ -58,7 +58,7 @@ while (t < 5):
     f.write("Current position of the searching submarine:\n")
     f.write(f"x: {tools.pos_s[0]} y: {tools.pos_s[1]} z: {tools.pos_s[2]}\n\n")
     save_heat_map()
-    # predict.step_forward()
+    predict.step_forward(t)
     calculate.step_forward(t)
     t += 1
 

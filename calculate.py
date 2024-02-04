@@ -4,9 +4,6 @@ from tools import *
 import tools
 
 
-
-
-
 # delta_t秒后的情况更新一步
 def step_forward(t):
     if tools.propulsion and random.random() < p_disable(t):

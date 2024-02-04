@@ -19,8 +19,8 @@ delta_t = 1
 # 用于正态分布的标准差
 sigma = 1
 
-# 搜救潜艇移动速度
-v_s = np.array([4, 4, 4])
+# 搜救潜艇移动速率
+v_s = 10
 
 # 搜救潜艇的位置坐标
 pos_s = np.array([0, 0, 0])
@@ -60,6 +60,9 @@ P[tuple(pos)] = 1
 # 是否有动力
 propulsion = True
 
+# 搜索成功
+finished = False
+
 
 # 确定t时间失去动力概率的函数
 def p_disable(t):
@@ -68,22 +71,41 @@ def p_disable(t):
     return (1-np.exp(-(t/Lambda)**k))
 
 
-# 判断是否结束
-def finish():
-    return ((pos-pos_s)**2).sum() <= R**2
+def distance_point_to_segment(point, segment_start, segment_end):
+    # 向量表示的线段
+    segment_vector = segment_end - segment_start
+
+    # 向量表示的点到线段起点的向量
+    vector_start_to_point = point - segment_start
+
+    # 计算点在线段方向上的投影长度
+    projection_length = np.dot(
+        vector_start_to_point, segment_vector) / np.dot(segment_vector, segment_vector)
+
+    # 如果投影长度小于0，垂足在线段左侧
+    if projection_length < 0:
+        distance = np.linalg.norm(point - segment_start)
+    # 如果投影长度大于1，垂足在线段右侧
+    elif projection_length > 1:
+        distance = np.linalg.norm(point - segment_end)
+    # 否则，垂足在线段上
+    else:
+        foot_point = segment_start + projection_length * segment_vector
+        distance = np.linalg.norm(point - foot_point)
+
+    return distance
 
 
-# 创建指示函数 I_R(x, y, z)
-def indicator_function(x, y, z):
-    return x**2+y**2+z**2 < R**2
+# 创建指示函数，判断位置p是否在从p_b到pos_s的探测范围内
+def indicator_func(p, p_b):
+    return distance_point_to_segment(p, p_b, pos_s) <= R
 
 
-# 更新概率分布
-def update_probability_distribution(P, indicator_func):
-    P_updated = P * np.array([[[(1 - indicator_func(x, y, z)) for z in range(shape[2])]
+# 根据查找范围更新概率分布
+def update_probability_distribution(P, p_b):
+    P_updated = P * np.array([[[(1 - indicator_func(np.array([x, y, z]), p_b)) for z in range(shape[2])]
                              for y in range(shape[1])] for x in range(shape[0])])
-    normalization_factor = np.sum(P_updated)
-    P_updated /= normalization_factor
+    P_updated /= np.sum(P_updated)
     return P_updated
 
 
@@ -157,10 +179,11 @@ def update_force(pos, v_lost, k, mass, g, density, density_water, current_v, hei
         F_new_z = 0
     return np.array([F_new_x, F_new_y, F_new_z])
 
+
 def check_position(pos):
     for i in range(3):
         if pos[i] < 0:
             pos[i] = 0
-        elif pos[i] >shape[i]:
+        elif pos[i] > shape[i]:
             pos[i] = shape[i]
     return pos
