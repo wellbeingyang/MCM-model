@@ -178,6 +178,22 @@ def update_force(pos, v_lost, k, mass, g, density, density_water, current_v, hei
     if pos[2] == height[int(pos[0]), int(pos[1])] and F_new_z > 0:
         F_new_z = 0
     return np.array([F_new_x, F_new_y, F_new_z])
+def update_force_prediction(pos, v_lost, k, mass, g, density, density_water, current_v, height):
+    # 更新x、y方向受力，使用所在位置处的相对速度
+    F_new_x = -k*(v_lost[0]-current_v[0])
+    F_new_y = -k*(v_lost[1]-current_v[1])
+
+    # 更新z方向受力，除阻力一项外还有浮力与重力的差
+    # 与height统一，定义z方向向下为正
+    z_force_f = -k*(v_lost[2]-current_v[2])
+    z_force_G = mass*g
+    z_force_Float = density_water*g*(mass/density)
+    F_new_z = z_force_f+z_force_G-z_force_Float
+
+    # 如果已经触底且z方向合力向下，置为0
+    if pos[2] == height[int(pos[0]), int(pos[1])] and F_new_z > 0:
+        F_new_z = 0
+    return np.array([F_new_x, F_new_y, F_new_z])
 
 
 def check_position(pos):
