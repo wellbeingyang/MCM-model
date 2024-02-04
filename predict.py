@@ -17,10 +17,10 @@ def step_forward(t):
     p_a[1]=np.sum(np.sum(tools.P,axis=(0,2)) * np.arange(tools.shape[1]))
     p_a[2]=np.sum(np.sum(tools.P,axis=(0,1)) * np.arange(tools.shape[2]))
     force=np.array([0,0,0])
-    force=tools.update_force(p_a,v_a,tools.k,tools.mass,tools.g,tools.density,dens_a,v_current_a,tools.height)
+    force=tools.update_force_prediction(p_a,v_a,tools.k,tools.mass,tools.g,tools.density,dens_a,v_current_a,tools.height)
 
     #进行求新P的操作
-    P_new=tools.convolve_probability_density(tools.P,v_a,tools.delta_t)
+    P_new=tools.convolve_probability_density(tools.P,v_a)
     tools.P=P_new
 
     #同时需要给出新速度
