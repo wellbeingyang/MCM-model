@@ -12,7 +12,6 @@ def step_forward(t):
     if tools.propulsion:
         tools.v_lost = [0, 0, tools.VZ]
         tools.pos = update_position(tools.pos, tools.v_lost)
-        tools.pos = check_position(tools.pos)
     else:
         tools.v_lost = np.random.normal(
             loc=tools.v_lost, scale=[tools.sigma]*3, size=3)

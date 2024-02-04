@@ -30,7 +30,6 @@ def step_forward(t):
     # 同时需要给出新速度
     # 求新速度方法：用老位置（全空间加权的）、老速度（是否失去动力加权的）算出新位置，再用新位置、老速度、老力算出新速度
     position_new = tools.update_position(p_a, v_a)
-    position_new = tools.check_position(position_new)
     v_new = tools.update_speed_prediction(
         position_new, v_a, tools.height, force)
     tools.v_before = v_new

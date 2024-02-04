@@ -41,14 +41,14 @@ k = 1
 VZ = -10
 
 # 失联潜艇在某秒计算开始时的位置、速度、受力
-pos = np.array([50, 50, np.random.randint(0, height[0][0])])
+pos = np.array([50, 50, height[0][0]])
 
-v_lost = np.array([10, 10, 10])  # 后续修改“初值”为失联时报告的速度
+v_lost = np.array([0, 0, VZ])  # 后续修改“初值”为失联时报告的速度
 
 F = np.array([0, 0, 0])
 
 # 失联潜艇在某秒开始时加权前的猜测速度
-v_before = np.array([10, 10, 10])
+v_before = v_lost
 
 # 雷达探测半径
 R = 20
@@ -104,7 +104,9 @@ def indicator_func(p, p_b):
 # 根据查找范围更新概率分布
 def update_probability_distribution(P, p_b):
     xyz_min = [int(min(p_b[i], pos_s[i]) - R) for i in range(3)]
+    xyz_min = check_position(xyz_min)
     xyz_max = [int(max(p_b[i], pos_s[i]) + R) for i in range(3)]
+    xyz_max = check_position(xyz_max)
     indicator = np.ones_like(P)
     for x in range(xyz_min[0], xyz_max[0]):
         for y in range(xyz_min[1], xyz_max[1]):
@@ -130,10 +132,9 @@ def convolve_probability_density(P, v):
 
 # 更新失联潜艇位置
 def update_position(pos, v_lost):
-    pos_new_x = pos[0]+v_lost[0]*delta_t
-    pos_new_y = pos[1]+v_lost[1]*delta_t
-    pos_new_z = pos[2]+v_lost[2]*delta_t
-    return np.array([pos_new_x, pos_new_y, pos_new_z])
+    pos_new = np.array([pos[i] + v_lost[i]*delta_t for i in range(3)])
+    pos_new = check_position(pos_new)
+    return pos_new
 
 
 # 判断是否触底来更新失联潜艇速度
@@ -202,8 +203,8 @@ def update_force_prediction(pos, v_lost, k, mass, g, density, density_water, cur
 
 def check_position(pos):
     for i in range(3):
-        if int(pos[i]) < 0:
+        if pos[i] < 0:
             pos[i] = 0
-        elif int(pos[i]) > shape[i]:
-            pos[i] = shape[i]
+        elif pos[i] >= shape[i]:
+            pos[i] = shape[i] - 1
     return pos
