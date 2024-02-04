@@ -111,18 +111,14 @@ def update_probability_distribution(P, p_b):
 
 # 求解概率密度函数的卷积
 def convolve_probability_density(P, v):
-    x = np.arange(P.shape[0])
-    y = np.arange(P.shape[1])
-    z = np.arange(P.shape[2])
-
-    # 生成速度的分布函数
-    vx, vy, vz = np.meshgrid(norm.pdf(x, loc=v[0], scale=sigma), norm.pdf(
-        y, loc=v[1], scale=sigma), norm.pdf(z, loc=v[2], scale=sigma))
-
-    # 卷积操作
-    P_convolved = np.fft.ifftn(np.fft.fftn(
-        P) * np.fft.fftn(vx) * np.fft.fftn(vy) * np.fft.fftn(vz)).real
-
+    x, y, z = tuple([np.arange(shape[i]) for i in range(3)])
+    vx = norm.pdf(x, loc=v[0], scale=sigma)
+    vy = norm.pdf(y, loc=v[1], scale=sigma)
+    vz = norm.pdf(z, loc=v[2], scale=sigma)
+    P_convolved = np.fft.ifftn(np.fft.fftn(P) * np.fft.fftn(vx)[:, np.newaxis, np.newaxis] *
+                               np.fft.fftn(vy)[np.newaxis, :, np.newaxis] *
+                               np.fft.fftn(vz)[np.newaxis, np.newaxis, :]).real
+    P_convolved /= P_convolved.sum()
     return P_convolved
 
 
@@ -178,6 +174,8 @@ def update_force(pos, v_lost, k, mass, g, density, density_water, current_v, hei
     if pos[2] == height[int(pos[0]), int(pos[1])] and F_new_z > 0:
         F_new_z = 0
     return np.array([F_new_x, F_new_y, F_new_z])
+
+
 def update_force_prediction(pos, v_lost, k, mass, g, density, density_water, current_v, height):
     # 更新x、y方向受力，使用所在位置处的相对速度
     F_new_x = -k*(v_lost[0]-current_v[0])
