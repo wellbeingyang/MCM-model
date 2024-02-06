@@ -17,7 +17,7 @@ density_water = np.random.uniform(low=0.5, high=1, size=shape)
 delta_t = 1
 
 # 用于正态分布的标准差
-sigma = 1
+sigma = 3
 
 # 搜救潜艇移动速率
 v_s = 10
@@ -119,10 +119,10 @@ def update_probability_distribution(P, p_b):
 
 # 求解概率密度函数的卷积
 def convolve_probability_density(P, v):
-    x, y, z = tuple([np.arange(shape[i]) for i in range(3)])
-    vx = norm.pdf(x, loc=v[0], scale=sigma)
-    vy = norm.pdf(y, loc=v[1], scale=sigma)
-    vz = norm.pdf(z, loc=v[2], scale=sigma)
+    v_range = range(-50,50)
+    vx = norm.pdf(v_range, loc=v[0], scale=sigma)
+    vy = norm.pdf(v_range, loc=v[1], scale=sigma)
+    vz = norm.pdf(v_range, loc=v[2], scale=sigma)
     P_convolved = np.fft.ifftn(np.fft.fftn(P) * np.fft.fftn(vx)[:, np.newaxis, np.newaxis] *
                                np.fft.fftn(vy)[np.newaxis, :, np.newaxis] *
                                np.fft.fftn(vz)[np.newaxis, np.newaxis, :]).real
